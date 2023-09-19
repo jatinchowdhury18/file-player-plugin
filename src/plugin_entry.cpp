@@ -2,11 +2,13 @@
 #include <clap/factory/plugin-factory.h>
 #include <clap/plugin.h>
 
+#include <clapwrapper/vst3.h>
+#include <clapwrapper/auv2.h>
+
 #include "file_player_plugin.h"
 
 namespace file_player::plugin_entry
 {
-
 uint32_t clap_get_plugin_count (const clap_plugin_factory* f) { return 1; }
 const clap_plugin_descriptor* clap_get_plugin_descriptor (const clap_plugin_factory*, uint32_t w)
 {
@@ -16,7 +18,7 @@ const clap_plugin_descriptor* clap_get_plugin_descriptor (const clap_plugin_fact
     return nullptr;
 }
 
-static const clap_plugin* clap_create_plugin (const clap_plugin_factory* f, const clap_host* host, const char* plugin_id)
+static const clap_plugin* clap_create_plugin (const clap_plugin_factory*, const clap_host* host, const char* plugin_id)
 {
     if (strcmp (plugin_id, plugin::File_Player_Plugin::descriptor.id) == 0)
     {
@@ -27,39 +29,41 @@ static const clap_plugin* clap_create_plugin (const clap_plugin_factory* f, cons
     return nullptr;
 }
 
-//static bool clap_get_auv2_info(const clap_plugin_factory_as_auv2 *factory, uint32_t index,
-//                                clap_plugin_info_as_auv2_t *info)
-//{
-//    auto desc = clap_get_plugin_descriptor(nullptr, index); // we don't use the factory above
-//    auto plugin_id = desc->id;
-//
-//    info->au_type[0] = 0; // use the features to determine the type
-//    if (strcmp(plugin_id, polysynth::desc.id) == 0)
-//    {
-//        strncpy(info->au_subt, "PlyS", 5);
-//        return true;
-//    }
-//    return false;
-//}
+static bool clap_get_auv2_info (const clap_plugin_factory_as_auv2*,
+                                uint32_t index,
+                                clap_plugin_info_as_auv2_t* info)
+{
+    auto desc = clap_get_plugin_descriptor (nullptr, index); // we don't use the factory above
+    auto plugin_id = desc->id;
 
-const struct clap_plugin_factory conduit_clap_factory = {
+    info->au_type[0] = 0; // use the features to determine the type
+    if (strcmp (plugin_id, plugin::File_Player_Plugin::descriptor.id) == 0)
+    {
+        strncpy (info->au_subt, "Fpp2", 5);
+        return true;
+    }
+    return false;
+}
+
+const struct clap_plugin_factory fpp_clap_factory = {
     file_player::plugin_entry::clap_get_plugin_count,
     file_player::plugin_entry::clap_get_plugin_descriptor,
     file_player::plugin_entry::clap_create_plugin,
 };
 
-//const struct clap_plugin_factory_as_auv2 conduit_auv2_factory = {
-//    "SSTx",             // manu
-//    "Surge Synth Team", // manu name
-//    sst::conduit::pluginentry::clap_get_auv2_info};
+constexpr struct clap_plugin_factory_as_auv2 fpp_auv2_factory = {
+    "chow", // manu
+    "Chowdhury DSP", // manu name
+    clap_get_auv2_info
+};
 
 static const void* get_factory (const char* factory_id)
 {
     if (! strcmp (factory_id, CLAP_PLUGIN_FACTORY_ID))
-        return &conduit_clap_factory;
+        return &fpp_clap_factory;
 
-    //    if (!strcmp(factory_id, CLAP_PLUGIN_FACTORY_INFO_AUV2))
-    //        return &conduit_auv2_factory;
+    if (! strcmp (factory_id, CLAP_PLUGIN_FACTORY_INFO_AUV2))
+        return &fpp_auv2_factory;
 
     return nullptr;
 }

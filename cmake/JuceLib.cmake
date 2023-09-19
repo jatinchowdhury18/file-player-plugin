@@ -1,7 +1,7 @@
 CPMAddPackage(
     NAME juce
     GITHUB_REPOSITORY juce-framework/juce
-    GIT_TAG 7.0.6
+    GIT_TAG 3d39e70393d629c39b9ae38aa17ed1b461b24a11
     OPTIONS "JUCE_MODULES_ONLY ON"
 )
 

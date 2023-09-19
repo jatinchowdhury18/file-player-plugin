@@ -10,7 +10,14 @@ CPMAddPackage(
     GIT_TAG ab8d2585872e603f41a41116f019cf2893b9b396
 )
 
-# TODO: clap-wrapper
+set(CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES TRUE CACHE BOOL "Get em")
+set(CLAP_WRAPPER_DONT_ADD_TARGETS TRUE CACHE BOOL "I'll targetize")
+set(CLAP_WRAPPER_BUILD_AUV2 TRUE CACHE BOOL "It's only logical")
+CPMAddPackage(
+    NAME clap-wrapper
+    GITHUB_REPOSITORY free-audio/clap-wrapper
+    GIT_TAG a8d4892187387df8bcc64bc81bbe3a20ed005dad
+)
 
 function(target_library_make_clap)
     set(oneValueArgs

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment target")
 if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CMAKE_SYSTEM_VERSION 7.1 CACHE STRING INTERNAL FORCE) # Windows SDK for Windows 7 and up
@@ -29,12 +29,43 @@ add_library(FilePlayerPlugin STATIC)
 target_link_libraries(FilePlayerPlugin PUBLIC clap clap-helpers juce_libs)
 add_subdirectory(src)
 
-add_library(FilePlayerPlugin_CLAP MODULE
-    src/plugin_entry.cpp
-)
+add_library(FilePlayerPlugin_CLAP MODULE src/plugin_entry.cpp)
 target_link_libraries(FilePlayerPlugin_CLAP PUBLIC FilePlayerPlugin)
 target_library_make_clap(TARGET FilePlayerPlugin_CLAP
     CLAP_NAME "File Player Plugin"
-    CLAP_BUNDLE_ID com.chowdsp.file-player-plugin
+    CLAP_BUNDLE_ID com.chowdsp.file-player
     CLAP_BUNDLE_VERSION ${PROJECT_VERSION}
 )
+
+add_library(FilePlayerPlugin_VST3 MODULE src/plugin_entry.cpp)
+target_link_libraries(FilePlayerPlugin_VST3 PUBLIC FilePlayerPlugin)
+target_add_vst3_wrapper(TARGET FilePlayerPlugin_VST3 OUTPUT_NAME "File Player Plugin")
+#if (WIN32)
+#    # Question - do we want this default in the helpers
+#    set_target_properties(${VST3_TARGET}
+#        PROPERTIES
+#        LIBRARY_OUTPUT_DIRECTORY VST3
+#    )
+#endif()
+
+if (APPLE)
+    add_library(FilePlayerPlugin_AU MODULE src/plugin_entry.cpp)
+    target_link_libraries(FilePlayerPlugin_AU PUBLIC FilePlayerPlugin)
+    target_add_auv2_wrapper(
+        TARGET FilePlayerPlugin_AU
+        OUTPUT_NAME "File Player Plugin"
+        BUNDLE_IDENTIFIER "com.chowdsp.file-player"
+        BUNDLE_VERSION ${PROJECT_VERSION}
+        CLAP_TARGET_FOR_CONFIG FilePlayerPlugin_CLAP
+    )
+    set_source_files_properties(src/plugin_entry.cpp PROPERTIES COMPILE_FLAGS "-I${clap-wrapper_SOURCE_DIR}/include")
+#    target_include_directories(FilePlayerPlugin_AU PUBLIC "${clap-wrapper_SOURCE_DIR}/include")
+endif()
+
+add_executable(FilePlayerPlugin_Standalone)
+target_sources(FilePlayerPlugin_Standalone PRIVATE src/plugin_entry.cpp)
+target_link_libraries(FilePlayerPlugin_Standalone PRIVATE FilePlayerPlugin)
+target_add_standalone_wrapper(TARGET FilePlayerPlugin_Standalone
+    OUTPUT_NAME "File Player Plugin"
+    STATICALLY_LINKED_CLAP_ENTRY True
+    PLUGIN_ID "com.chowdsp.file-player")
