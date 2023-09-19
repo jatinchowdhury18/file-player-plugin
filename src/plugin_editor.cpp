@@ -330,14 +330,11 @@ bool Editor_Provider::set_parent (const clap_plugin* plugin, const clap_window* 
 #endif
 
 #if JUCE_WINDOWS
-    bool guiWin32Attach (clap_hwnd window) const noexcept
-    {
-        editorWrapper->setVisible (false);
-        editorWrapper->setTopLeftPosition (0, 0);
-        editorWrapper->addToDesktop (0, (void*) window);
-        editorWrapper->setVisible (true);
-        return true;
-    }
+    editor.editor_wrapper->setVisible (false);
+    editor.editor_wrapper->setTopLeftPosition (0, 0);
+    editor.editor_wrapper->addToDesktop (0, (void*) window->win32);
+    editor.editor_wrapper->setVisible (true);
+    return true;
 #endif
 }
 } // namespace file_player::editor

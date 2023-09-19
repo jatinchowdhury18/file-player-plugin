@@ -75,7 +75,6 @@ function(target_library_make_clap)
             PROPERTIES
             OUTPUT_NAME ${TCLP_CLAP_NAME}
             SUFFIX ".clap" PREFIX ""
-            LIBRARY_OUTPUT_DIRECTORY CLAP
         )
     endif()
 endfunction(target_library_make_clap)

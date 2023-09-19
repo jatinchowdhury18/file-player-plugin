@@ -5,11 +5,6 @@
 
 #include "plugin_editor.h"
 
-namespace file_player::editor
-{
-struct Editor_Wrapper;
-}
-
 namespace file_player::plugin
 {
 static constexpr clap::helpers::MisbehaviourHandler misLevel =
@@ -21,7 +16,7 @@ using Plugin = clap::helpers::Plugin<misLevel, checkLevel>;
 struct File_Player_Plugin : public Plugin
 {
     static constexpr char const* features[] = { CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_DELAY, nullptr };
-    static constexpr clap_plugin_descriptor descriptor = { CLAP_VERSION,
+    static constexpr clap_plugin_descriptor descriptor = { CLAP_VERSION_INIT,
                                                            "com.chowdsp.file-player", // @TODO: assert this matches with CMake (or copy from cmake)
                                                            "File Player Plugin",
                                                            "Chowdhury DSP",

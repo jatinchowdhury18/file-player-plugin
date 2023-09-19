@@ -3,6 +3,8 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment ta
 if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CMAKE_SYSTEM_VERSION 7.1 CACHE STRING INTERNAL FORCE) # Windows SDK for Windows 7 and up
+    set(CMAKE_DEBUG_POSTFIX "")
+    message(STATUS "CMAKE_DEBUG_POSTFIX: ${CMAKE_DEBUG_POSTFIX}")
 endif()
 project(FilePlayerPlugin VERSION 1.0.0 LANGUAGES C CXX)
 
@@ -28,6 +30,8 @@ include(JuceLib)
 add_library(FilePlayerPlugin STATIC)
 target_link_libraries(FilePlayerPlugin PUBLIC clap clap-helpers juce_libs)
 add_subdirectory(src)
+
+set_source_files_properties(src/plugin_entry.cpp PROPERTIES COMPILE_FLAGS "-I${clap-wrapper_SOURCE_DIR}/include")
 
 add_library(FilePlayerPlugin_CLAP MODULE src/plugin_entry.cpp)
 target_link_libraries(FilePlayerPlugin_CLAP PUBLIC FilePlayerPlugin)
@@ -58,8 +62,6 @@ if (APPLE)
         BUNDLE_VERSION ${PROJECT_VERSION}
         CLAP_TARGET_FOR_CONFIG FilePlayerPlugin_CLAP
     )
-    set_source_files_properties(src/plugin_entry.cpp PROPERTIES COMPILE_FLAGS "-I${clap-wrapper_SOURCE_DIR}/include")
-#    target_include_directories(FilePlayerPlugin_AU PUBLIC "${clap-wrapper_SOURCE_DIR}/include")
 endif()
 
 add_executable(FilePlayerPlugin_Standalone)
