@@ -1,7 +1,7 @@
 #pragma once
 
 #include <clap/clap.h>
-#include <clap/helpers/plugin.hh>
+#include "clap_plugin.h"
 
 #include "plugin_editor.h"
 

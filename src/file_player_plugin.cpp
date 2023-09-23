@@ -1,9 +1,5 @@
-//// this is a stupid hack to allow us to access private members of clap::helpers::Plugin
-//// I should probably just fork that class instead...
-//#define private protected
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/host-proxy.hxx>
-#include <clap/helpers/plugin.hxx>
 
 #include <juce_gui_basics/juce_gui_basics.h>
 

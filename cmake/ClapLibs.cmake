@@ -18,6 +18,11 @@ CPMAddPackage(
     GITHUB_REPOSITORY free-audio/clap-wrapper
     GIT_TAG a8d4892187387df8bcc64bc81bbe3a20ed005dad
 )
+if (MSVC)
+    target_compile_options(clap-wrapper-shared-detail INTERFACE /Zc:char8_t-)
+else()
+    target_compile_options(clap-wrapper-shared-detail INTERFACE -fno-char8_t)
+endif()
 
 function(target_library_make_clap)
     set(oneValueArgs
