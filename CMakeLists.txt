@@ -4,7 +4,6 @@ if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CMAKE_SYSTEM_VERSION 7.1 CACHE STRING INTERNAL FORCE) # Windows SDK for Windows 7 and up
     set(CMAKE_DEBUG_POSTFIX "")
-    message(STATUS "CMAKE_DEBUG_POSTFIX: ${CMAKE_DEBUG_POSTFIX}")
 endif()
 project(FilePlayerPlugin VERSION 1.0.0 LANGUAGES C CXX)
 
