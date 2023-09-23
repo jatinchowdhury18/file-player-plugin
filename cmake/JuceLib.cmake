@@ -13,6 +13,7 @@ target_link_libraries(juce_libs PUBLIC
     juce::juce_core
     juce::juce_events
     juce::juce_data_structures
+    juce::juce_audio_formats
 )
 
 target_compile_definitions(juce_libs PUBLIC

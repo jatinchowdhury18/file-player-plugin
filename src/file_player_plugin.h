@@ -3,6 +3,9 @@
 #include <clap/clap.h>
 #include "clap_plugin.h"
 
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <readerwriterqueue.h>
+
 #include "plugin_editor.h"
 
 namespace file_player::plugin
@@ -31,8 +34,20 @@ struct File_Player_Plugin : public Plugin
 
     static const void* get_extension (const clap_plugin* plugin, const char* id) noexcept;
 
+    bool implementsAudioPorts() const noexcept override { return true; }
+    uint32_t audioPortsCount (bool isInput) const noexcept override { return 1; }
+    bool audioPortsInfo (uint32_t index, bool isInput, clap_audio_port_info* info) const noexcept override;
+
+    void onMainThread() noexcept override;
+
+    clap_process_status process (const clap_process* process) noexcept override;
+
     clap::helpers::HostProxy<misLevel, checkLevel>& get_host() { return _host; }
 
     editor::Editor editor;
+    moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
+    moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;
+    std::unique_ptr<juce::AudioBuffer<float>> playing_buffer;
+    int sample_ptr = 0;
 };
 } // namespace file_player::plugin

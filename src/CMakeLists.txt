@@ -1,5 +1,6 @@
 target_sources(FilePlayerPlugin PRIVATE
     file_player_plugin.cpp
+    file_player_editor.cpp
 )
 
 if(APPLE)

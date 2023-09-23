@@ -27,8 +27,13 @@ include(CPM)
 include(ClapLibs)
 include(JuceLib)
 
+CPMAddPackage(
+    NAME readerwriterqueue
+    GITHUB_REPOSITORY cameron314/readerwriterqueue
+    GIT_TAG v1.0.6
+)
 add_library(FilePlayerPlugin STATIC)
-target_link_libraries(FilePlayerPlugin PUBLIC clap clap-helpers juce_libs)
+target_link_libraries(FilePlayerPlugin PUBLIC clap clap-helpers juce_libs readerwriterqueue)
 add_subdirectory(src)
 
 set_source_files_properties(src/plugin_entry.cpp PROPERTIES COMPILE_FLAGS "-I${clap-wrapper_SOURCE_DIR}/include")
