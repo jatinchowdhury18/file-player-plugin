@@ -60,35 +60,19 @@ clap_process_status File_Player_Plugin::process (const clap_process* process) no
         std::unique_ptr<juce::AudioBuffer<float>> buffer_swap_ptr;
         if (buffer_life_queue.try_dequeue (buffer_swap_ptr))
         {
-            std::swap (buffer_swap_ptr, playing_buffer);
-            sample_ptr = 0;
+            buffer_swap_ptr.reset (reinterpret_cast<juce::AudioBuffer<float>*> (
+                swap_buffers (&player_state,
+                              buffer_swap_ptr.release(),
+                              buffer_swap_ptr->getNumChannels(),
+                              buffer_swap_ptr->getNumSamples(),
+                              const_cast<float**> (buffer_swap_ptr->getArrayOfWritePointers()))));
 
             buffer_death_queue.try_enqueue (std::move (buffer_swap_ptr));
             _host.requestCallback();
         }
     }
 
-    const auto num_channels_out = (int) process->audio_outputs[0].channel_count;
-    const auto num_samples = (int) process->frames_count;
-    auto buffer_data = process->audio_outputs[0].data32;
-
-    for (int ch = 0; ch < num_channels_out; ++ch)
-        std::fill (buffer_data[ch], buffer_data[ch] + num_samples, 0.0f);
-
-    if (playing_buffer != nullptr)
-    {
-        const auto samples_to_copy = std::min (num_samples, playing_buffer->getNumSamples() - sample_ptr);
-
-        if (samples_to_copy > 0)
-        {
-            for (int ch = 0; ch < num_channels_out; ++ch)
-            {
-                const auto* channel_data = playing_buffer->getReadPointer (ch % playing_buffer->getNumChannels());
-                std::copy (channel_data + sample_ptr, channel_data + sample_ptr + samples_to_copy, buffer_data[ch]);
-            }
-            sample_ptr += samples_to_copy;
-        }
-    }
+    play_audio (jai, &player_state, process->audio_outputs[0].channel_count, process->frames_count, process->audio_outputs[0].data32);
 
     return CLAP_PROCESS_CONTINUE;
 }

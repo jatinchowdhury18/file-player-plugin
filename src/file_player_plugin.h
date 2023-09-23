@@ -6,6 +6,9 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <readerwriterqueue.h>
 
+#include "jai/JaiContext.h"
+#include "jai/file_player_jai_lib.h"
+
 #include "plugin_editor.h"
 
 namespace file_player::plugin
@@ -44,10 +47,11 @@ struct File_Player_Plugin : public Plugin
 
     clap::helpers::HostProxy<misLevel, checkLevel>& get_host() { return _host; }
 
+    jai_Player_State player_state {};
     editor::Editor editor;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;
-    std::unique_ptr<juce::AudioBuffer<float>> playing_buffer;
-    int sample_ptr = 0;
+
+    JaiContextWrapper jai;
 };
 } // namespace file_player::plugin

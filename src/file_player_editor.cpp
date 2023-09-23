@@ -12,7 +12,7 @@ File_Player_Editor::File_Player_Editor (plugin::File_Player_Plugin& plug)
     {
         file_chooser = std::make_shared<juce::FileChooser> ("Select audio file...",
                                                             juce::File {},
-                                                            "*.wav;*.mp3");
+                                                            "*.wav;*.mp3;*.flac");
         static constexpr auto file_chooser_flags = juce::FileBrowserComponent::canSelectFiles;
         file_chooser->launchAsync (file_chooser_flags,
                                    [this] (const juce::FileChooser& fc)
