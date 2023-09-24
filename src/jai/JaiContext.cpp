@@ -1,5 +1,6 @@
 #include "JaiContext.h"
 
+#include <clap/clap.h>
 #include <juce_core/juce_core.h>
 
 #include "file_player_jai_lib.h"

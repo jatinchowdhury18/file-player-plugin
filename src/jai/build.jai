@@ -3,7 +3,8 @@
 #import "generate_cpp_header";
 
 SRC_FILES :: string.[
-    "src/player.jai"
+    "src/player.jai",
+    "src/audio_ports.jai",
 ];
 
 build :: (building_arm64 := false, lib_postfix := "") {
@@ -38,6 +39,17 @@ build :: (building_arm64 := false, lib_postfix := "") {
 
     if ! building_arm64 {
         cpp_header_info : Header_Info;
+        array_add(*cpp_header_info.types_to_skip,
+            "clap_version_t",
+            "clap_plugin_descriptor_t",
+            "clap_event_header_t",
+            "clap_event_transport_t",
+            "clap_audio_buffer_t",
+            "clap_input_events_t",
+            "clap_output_events_t",
+            "clap_process_t",
+            "clap_plugin_t",
+            "clap_audio_port_info_t");
         while true {
             message := compiler_wait_for_message();
             handle_message(*cpp_header_info, message);

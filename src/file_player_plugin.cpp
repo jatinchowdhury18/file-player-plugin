@@ -27,23 +27,18 @@ File_Player_Plugin::File_Player_Plugin (const clap_host* host)
 
 const void* File_Player_Plugin::get_extension (const clap_plugin* plugin, const char* id) noexcept
 {
+    static const clap_plugin_audio_ports audio_ports_ext {
+        .count = reinterpret_cast<uint32_t (*) (const clap_plugin_t*, bool)> (audio_ports_count),
+        .get = reinterpret_cast<bool (*) (const clap_plugin_t*, uint32_t, bool, clap_audio_port_info_t*)> (audio_ports_get),
+    };
+
     if (strcmp (id, CLAP_EXT_GUI) == 0)
         return &editor::Editor_Provider::gui_extension;
 
+    if (strcmp (id, CLAP_EXT_AUDIO_PORTS) == 0)
+        return &audio_ports_ext;
+
     return Plugin::clapExtension (plugin, id);
-}
-
-bool File_Player_Plugin::audioPortsInfo (uint32_t index, bool isInput, clap_audio_port_info* info) const noexcept
-{
-    if (index > 0)
-        return false;
-
-    info->channel_count = 2;
-    info->id = 1;
-    info->in_place_pair = 1;
-    info->flags = CLAP_AUDIO_PORT_IS_MAIN;
-    strcpy (info->name, "main");
-    return true;
 }
 
 void File_Player_Plugin::onMainThread() noexcept

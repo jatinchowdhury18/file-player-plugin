@@ -37,10 +37,6 @@ struct File_Player_Plugin : public Plugin
 
     static const void* get_extension (const clap_plugin* plugin, const char* id) noexcept;
 
-    bool implementsAudioPorts() const noexcept override { return true; }
-    uint32_t audioPortsCount (bool isInput) const noexcept override { return 1; }
-    bool audioPortsInfo (uint32_t index, bool isInput, clap_audio_port_info* info) const noexcept override;
-
     void onMainThread() noexcept override;
 
     clap_process_status process (const clap_process* process) noexcept override;
