@@ -72,4 +72,9 @@ struct Editor_Provider
     // static use only!
     Editor_Provider() = delete;
 };
+
+#if JUCE_MAC
+// defined in plugin_editor.mm
+bool set_editor_parent_macos (juce::Component* editor_comp, const clap_window* window) noexcept;
+#endif
 } // namespace file_player::editor

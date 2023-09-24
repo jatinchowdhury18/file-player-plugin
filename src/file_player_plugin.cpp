@@ -60,12 +60,15 @@ clap_process_status File_Player_Plugin::process (const clap_process* process) no
         std::unique_ptr<juce::AudioBuffer<float>> buffer_swap_ptr;
         if (buffer_life_queue.try_dequeue (buffer_swap_ptr))
         {
+            const auto num_channels = buffer_swap_ptr->getNumChannels();
+            const auto num_samples = buffer_swap_ptr->getNumSamples();
+            const auto buffer_data = buffer_swap_ptr->getArrayOfWritePointers();
             buffer_swap_ptr.reset (reinterpret_cast<juce::AudioBuffer<float>*> (
                 swap_buffers (&player_state,
                               buffer_swap_ptr.release(),
-                              buffer_swap_ptr->getNumChannels(),
-                              buffer_swap_ptr->getNumSamples(),
-                              const_cast<float**> (buffer_swap_ptr->getArrayOfWritePointers()))));
+                              num_channels,
+                              num_samples,
+                              const_cast<float**> (buffer_data))));
 
             buffer_death_queue.try_enqueue (std::move (buffer_swap_ptr));
             _host.requestCallback();

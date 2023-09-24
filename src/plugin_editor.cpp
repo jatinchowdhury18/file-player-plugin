@@ -307,29 +307,15 @@ bool Editor_Provider::set_transient (const clap_plugin*, const clap_window*) noe
 }
 } // namespace file_player::editor
 
-#if ! JUCE_MAC
 namespace file_player::editor
 {
 bool Editor_Provider::set_parent (const clap_plugin* plugin, const clap_window* window) noexcept
 {
     auto& editor = from_plugin (plugin);
 
-#if JUCE_LINUX
-    bool guiX11Attach (const char* displayName, unsigned long window) noexcept
-    {
-        juce::ignoreUnused (displayName);
-        const juce::MessageManagerLock mmLock;
-        editorWrapper->setVisible (false);
-        editorWrapper->addToDesktop (0, (void*) window);
-        auto* display = juce::XWindowSystem::getInstance()->getDisplay();
-        juce::X11Symbols::getInstance()->xReparentWindow (
-            display, (Window) editorWrapper->getWindowHandle(), window, 0, 0);
-        editorWrapper->setVisible (true);
-        return true;
-    }
-#endif
-
-#if JUCE_WINDOWS
+#if JUCE_MAC
+    return set_editor_parent_macos (editor.editor_wrapper.get(), window);
+#elif JUCE_WINDOWS
     editor.editor_wrapper->setVisible (false);
     editor.editor_wrapper->setTopLeftPosition (0, 0);
     editor.editor_wrapper->addToDesktop (0, (void*) window->win32);
@@ -338,4 +324,3 @@ bool Editor_Provider::set_parent (const clap_plugin* plugin, const clap_window* 
 #endif
 }
 } // namespace file_player::editor
-#endif
