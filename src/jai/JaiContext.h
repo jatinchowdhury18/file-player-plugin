@@ -1,14 +1,17 @@
 #pragma once
 
-struct jai_Context;
+namespace jai
+{
+struct Context;
+}
 struct JaiContextWrapper
 {
     JaiContextWrapper();
     ~JaiContextWrapper();
 
-    jai_Context* get() { return internal; }
-    operator jai_Context*() { return get(); }; // NOLINT
+    jai::Context* get() { return internal; }
+    operator jai::Context*() { return get(); }; // NOLINT
 
 private:
-    jai_Context* internal = nullptr;
+    jai::Context* internal = nullptr;
 };

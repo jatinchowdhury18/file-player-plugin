@@ -47,7 +47,7 @@ struct File_Player_Plugin : public Plugin
 
     clap::helpers::HostProxy<misLevel, checkLevel>& get_host() { return _host; }
 
-    jai_Player_State player_state {};
+    jai::Player_State player_state {};
     editor::Editor editor;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;

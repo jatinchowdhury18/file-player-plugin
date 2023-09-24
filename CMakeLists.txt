@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment target")
-    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "OSX Architectures") # Not trying to compile ARM with Jai just yet
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "OSX Architectures")
 elseif(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set(CMAKE_SYSTEM_VERSION 7.1 CACHE STRING INTERNAL FORCE) # Windows SDK for Windows 7 and up
