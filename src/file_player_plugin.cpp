@@ -11,14 +11,14 @@ template struct clap::helpers::HostProxy<file_player::plugin::misLevel, file_pla
 
 namespace file_player::plugin
 {
-extern "C" void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_State* player_state)
+void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_State* player_state)
 {
-    auto& file_player_plugin = *static_cast<File_Player_Plugin*> (plugin->plugin_data);
+    auto* file_player_plugin = static_cast<File_Player_Plugin*> (plugin->plugin_data);
 
-    if (file_player_plugin.buffer_life_queue.peek() != nullptr)
+    if (file_player_plugin->buffer_life_queue.peek() != nullptr)
     {
         std::unique_ptr<juce::AudioBuffer<float>> buffer_swap_ptr;
-        if (file_player_plugin.buffer_life_queue.try_dequeue (buffer_swap_ptr))
+        if (file_player_plugin->buffer_life_queue.try_dequeue (buffer_swap_ptr))
         {
             const auto num_channels = buffer_swap_ptr->getNumChannels();
             const auto num_samples = buffer_swap_ptr->getNumSamples();
@@ -30,8 +30,8 @@ extern "C" void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_Sta
                               num_samples,
                               const_cast<float**> (buffer_data))));
 
-            file_player_plugin.buffer_death_queue.try_enqueue (std::move (buffer_swap_ptr));
-            file_player_plugin.request_host_callback();
+            file_player_plugin->buffer_death_queue.try_enqueue (std::move (buffer_swap_ptr));
+            file_player_plugin->request_host_callback();
         }
     }
 }
@@ -39,13 +39,14 @@ extern "C" void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_Sta
 File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     : Plugin (&descriptor, host)
 {
-    // const auto offset_test = offsetof (File_Player_Plugin, player_state);
-    jassert (offsetof (File_Player_Plugin, player_state) == 456);
+    //    const auto offset_test = offsetof (File_Player_Plugin, player_state);
+    //    jassert (offsetof (File_Player_Plugin, player_state) == 456);
+
     _plugin.get_extension = &get_extension;
     _plugin.process = reinterpret_cast<clap_process_status (*) (const clap_plugin*, const clap_process_t*)> (&plugin_process);
 
     player_state.audio_context = jai;
-    player_state.buffer_swap_proc = &buffer_swap_audio_thread;
+    player_state.buffer_swap_proc = reinterpret_cast<void*> (&buffer_swap_audio_thread);
     jassert (from_plugin (&_plugin) == &player_state);
 
     editor.create_editor = [this]

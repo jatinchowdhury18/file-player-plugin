@@ -13,7 +13,7 @@ Audio_Buffer :: struct {
 Player_State :: struct {
     audio_context: *Context = null;
 
-    buffer_swap_proc: (plugin: clap_plugin_t, state: *Player_State) -> void #c_call = null;
+    buffer_swap_proc: (plugin: clap_plugin_t, state: *Player_State) -> void #no_context = null;
     playing_buffer: Audio_Buffer = .{};
 
     sample_ptr: u32 = 0;
@@ -21,7 +21,12 @@ Player_State :: struct {
 
 #program_export
 from_plugin :: (plugin: *clap_plugin_t) -> *Player_State #c_call {
-    return cast(*Player_State) (plugin.plugin_data + 456);
+    #if OS == .WINDOWS {
+        return cast (*Player_State) (plugin.plugin_data + 456);
+    } else #if OS == .MACOS {
+        return cast (*Player_State) (plugin.plugin_data + 432);
+    }
+    return null;
 }
 
 #program_export
