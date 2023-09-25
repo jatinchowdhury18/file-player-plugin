@@ -49,6 +49,8 @@ build :: (building_arm64 := false, lib_postfix := "") {
             "clap_output_events_t",
             "clap_process_t",
             "clap_plugin_t",
+            "clap_process_status",
+            "clap_transport_flags",
             "clap_audio_port_info_t");
         while true {
             message := compiler_wait_for_message();

@@ -11,8 +11,28 @@ Audio_Buffer :: struct {
 }
 
 Player_State :: struct {
+    audio_context: *Context = null;
+
+    buffer_swap_proc: (plugin: clap_plugin_t, state: *Player_State) -> void #c_call = null;
     playing_buffer: Audio_Buffer = .{};
+
     sample_ptr: u32 = 0;
+}
+
+#program_export
+from_plugin :: (plugin: *clap_plugin_t) -> *Player_State #c_call {
+    return cast(*Player_State) (plugin.plugin_data + 456);
+}
+
+#program_export
+plugin_process :: (plugin: *clap_plugin_t, process: *clap_process_t) -> clap_process_status #c_call {
+    player_state := from_plugin(plugin);
+
+    player_state.buffer_swap_proc(plugin, player_state);
+
+    play_audio(player_state.audio_context, player_state, process.audio_outputs[0].channel_count, process.frames_count, process.audio_outputs[0].data32);
+
+    return .CLAP_PROCESS_CONTINUE;
 }
 
 #program_export
@@ -61,3 +81,4 @@ play_audio :: (ctx: *Context, using state: *Player_State, num_channels: u32, num
 }
 
 #import "Basic";
+#import "clap-jai";

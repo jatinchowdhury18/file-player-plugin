@@ -37,9 +37,8 @@ struct File_Player_Plugin : public Plugin
 
     static const void* get_extension (const clap_plugin* plugin, const char* id) noexcept;
 
+    void request_host_callback() { _host.requestCallback(); }
     void onMainThread() noexcept override;
-
-    clap_process_status process (const clap_process* process) noexcept override;
 
     clap::helpers::HostProxy<misLevel, checkLevel>& get_host() { return _host; }
 
