@@ -65,11 +65,23 @@ const void* File_Player_Plugin::get_extension (const clap_plugin* plugin, const 
         .get = reinterpret_cast<bool (*) (const clap_plugin_t*, uint32_t, bool, clap_audio_port_info_t*)> (audio_ports_get),
     };
 
+    static const clap_plugin_params params_ext {
+        .count = reinterpret_cast<uint32_t (*) (const clap_plugin_t*)> (params_count),
+        .get_info = reinterpret_cast<bool (*) (const clap_plugin_t*, uint32_t, clap_param_info_t*)> (param_get_info),
+        .get_value = reinterpret_cast<bool (*) (const clap_plugin_t*, clap_id, double*)> (param_get_value),
+        .value_to_text = reinterpret_cast<bool (*) (const clap_plugin_t*, clap_id, double, char*, uint32_t)> (param_value_to_text),
+        .text_to_value = reinterpret_cast<bool (*) (const clap_plugin_t*, clap_id, const char*, double*)> (param_text_to_value),
+        .flush = reinterpret_cast<void (*) (const clap_plugin_t*, const clap_input_events_t*, const clap_output_events_t*)> (params_flush),
+    };
+
     if (strcmp (id, CLAP_EXT_GUI) == 0)
         return &editor::Editor_Provider::gui_extension;
 
     if (strcmp (id, CLAP_EXT_AUDIO_PORTS) == 0)
         return &audio_ports_ext;
+
+    if (strcmp (id, CLAP_EXT_PARAMS) == 0)
+        return &params_ext;
 
     return Plugin::clapExtension (plugin, id);
 }

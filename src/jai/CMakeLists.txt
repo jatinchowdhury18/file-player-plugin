@@ -6,7 +6,11 @@ endif()
 
 set(JAI_SOURCES
     "build.jai"
+    "src/audio_ports.jai"
+    "src/params.jai"
     "src/player.jai"
+    "src/plugin.jai"
+    "src/process.jai"
 )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${JAI_LIBRARY_FILE}
         COMMAND ${JAI_COMPILER} build.jai
