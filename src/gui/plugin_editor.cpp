@@ -1,6 +1,6 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
-#include "file_player_plugin.h"
+#include "../file_player_plugin.h"
 #include "plugin_editor.h"
 
 namespace file_player::editor

@@ -9,7 +9,7 @@
 #include "jai/JaiContext.h"
 #include "jai/file_player_jai_lib.h"
 
-#include "plugin_editor.h"
+#include "gui/plugin_editor.h"
 
 namespace file_player::plugin
 {

@@ -1,12 +1,12 @@
 target_sources(FilePlayerPlugin PRIVATE
     file_player_plugin.cpp
 
-    plugin_editor.cpp
-    file_player_editor.cpp
+    gui/plugin_editor.cpp
+    gui/file_player_editor.cpp
 )
 
 if(APPLE)
-    target_sources(FilePlayerPlugin PRIVATE plugin_editor.mm)
+    target_sources(FilePlayerPlugin PRIVATE gui/plugin_editor.mm)
 endif()
 
 include(FindJaiCompiler)

@@ -3,7 +3,7 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
-#include "file_player_editor.h"
+#include "gui/file_player_editor.h"
 #include "file_player_plugin.h"
 
 template struct clap::helpers::Plugin<file_player::plugin::misLevel, file_player::plugin::checkLevel>;

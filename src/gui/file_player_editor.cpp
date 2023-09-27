@@ -1,5 +1,5 @@
 #include "file_player_editor.h"
-#include "file_player_plugin.h"
+#include "../file_player_plugin.h"
 
 namespace file_player::editor
 {
