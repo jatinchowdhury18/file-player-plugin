@@ -39,9 +39,10 @@ void Param_Slider::sliderValueChanged (Slider* slider)
     if (skip_sending_to_host)
         return;
 
+    param->value = getValue();
     param_action_sender ({
         .param_id = param_info.id,
-        .new_value = getValue(),
+        .new_value = param->value,
     });
 }
 
