@@ -1,7 +1,7 @@
 #pragma once
 
-#include <clap/clap.h>
 #include "clap_plugin.h"
+#include <clap/clap.h>
 
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <readerwriterqueue.h>
@@ -18,6 +18,15 @@ static constexpr clap::helpers::MisbehaviourHandler misLevel =
 static constexpr clap::helpers::CheckingLevel checkLevel = clap::helpers::CheckingLevel::Maximal;
 
 using Plugin = clap::helpers::Plugin<misLevel, checkLevel>;
+
+struct Param_Action
+{
+    clap_id param_id {};
+    //    void* param_cookie = nullptr;
+    double new_value = 0.0;
+    bool is_begin_gesture = false;
+    bool is_end_gesture = false;
+};
 
 struct File_Player_Plugin : public Plugin
 {
@@ -46,6 +55,8 @@ struct File_Player_Plugin : public Plugin
     editor::Editor editor;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;
+    moodycamel::ReaderWriterQueue<Param_Action, 32> params_gui_to_audio_queue;
+    moodycamel::ReaderWriterQueue<Param_Action, 32> params_audio_to_gui_queue;
 
     JaiContextWrapper audio_context;
     JaiContextWrapper main_context;

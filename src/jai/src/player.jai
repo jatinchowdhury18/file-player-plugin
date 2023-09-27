@@ -14,8 +14,11 @@ Player_State :: struct {
     main_context: *Context = null;
     audio_context: *Context = null;
 
-    buffer_swap_proc: (plugin: clap_plugin_t, state: *Player_State) -> void #no_context = null;
+    buffer_swap_proc: (plugin: *clap_plugin_t, state: *Player_State) -> void #no_context = null;
     playing_buffer: Audio_Buffer = .{};
+
+    push_param_change_proc: (plugin: *clap_plugin_t, param_id: clap_id, new_value: float64) -> void #no_context = null;
+    pull_param_changes_proc: (plugin: *clap_plugin_t, queue: *clap_output_events_t) -> void #no_context = null;
 
     sample_ptr: u32 = 0;
 

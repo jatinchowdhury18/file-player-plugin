@@ -3,8 +3,8 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 
-#include "gui/file_player_editor.h"
 #include "file_player_plugin.h"
+#include "gui/file_player_editor.h"
 
 template struct clap::helpers::Plugin<file_player::plugin::misLevel, file_player::plugin::checkLevel>;
 template struct clap::helpers::HostProxy<file_player::plugin::misLevel, file_player::plugin::checkLevel>;
@@ -36,6 +36,60 @@ void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_State* player_
     }
 }
 
+void param_change_audio_to_gui (clap_plugin_t* plugin, clap_id param_id, double new_value)
+{
+    auto& file_player_plugin = *static_cast<File_Player_Plugin*> (plugin->plugin_data);
+    file_player_plugin.params_audio_to_gui_queue.enqueue ({
+        .param_id = param_id,
+        .new_value = new_value,
+    });
+    file_player_plugin.request_host_callback();
+}
+
+void param_changes_gui_to_audio (clap_plugin_t* plugin, clap_output_events* out_events)
+{
+    auto& file_player_plugin = *static_cast<File_Player_Plugin*> (plugin->plugin_data);
+
+    Param_Action action;
+    while (file_player_plugin.params_gui_to_audio_queue.try_dequeue (action))
+    {
+        if (action.is_begin_gesture || action.is_end_gesture)
+        {
+            clap_event_param_gesture event {
+                .header {
+                    .size = sizeof (clap_event_param_gesture),
+                    .time = 0,
+                    .space_id = CLAP_CORE_EVENT_SPACE_ID,
+                    .type = static_cast<uint16_t> (action.is_begin_gesture ? CLAP_EVENT_PARAM_GESTURE_BEGIN : CLAP_EVENT_PARAM_GESTURE_END),
+                    .flags = {},
+                },
+                .param_id = action.param_id,
+            };
+            out_events->try_push (out_events, reinterpret_cast<const clap_event_header*> (&event));
+        }
+        else
+        {
+            clap_event_param_value event {
+                .header {
+                    .size = sizeof (clap_event_param_value),
+                    .time = 0,
+                    .space_id = CLAP_CORE_EVENT_SPACE_ID,
+                    .type = static_cast<uint16_t> (CLAP_EVENT_PARAM_VALUE),
+                    .flags = {},
+                },
+                .param_id = action.param_id,
+                .note_id = -1,
+                .port_index = -1,
+                .channel = -1,
+                .key = -1,
+                .value = action.new_value,
+            };
+            out_events->try_push (out_events, reinterpret_cast<const clap_event_header*> (&event));
+
+        }
+    }
+}
+
 File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     : Plugin (&descriptor, host)
 {
@@ -48,6 +102,8 @@ File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     player_state.main_context = main_context;
     player_state.audio_context = audio_context;
     player_state.buffer_swap_proc = reinterpret_cast<void*> (&buffer_swap_audio_thread);
+    player_state.push_param_change_proc = reinterpret_cast<void*> (&param_change_audio_to_gui);
+    player_state.pull_param_changes_proc = reinterpret_cast<void*> (&param_changes_gui_to_audio);
     jassert (from_plugin (&_plugin) == &player_state);
 
     editor.create_editor = [this]
@@ -92,5 +148,12 @@ void File_Player_Plugin::onMainThread() noexcept
     std::unique_ptr<juce::AudioBuffer<float>> buffer_killer {};
     while (buffer_death_queue.try_dequeue (buffer_killer))
         buffer_killer.reset (nullptr);
+
+    Param_Action param_action;
+    while (params_audio_to_gui_queue.try_dequeue (param_action))
+    {
+        if (auto* editor_comp = reinterpret_cast<editor::File_Player_Editor*> (editor.editor_comp))
+            editor_comp->handle_param_action (param_action);
+    }
 }
 } // namespace file_player::plugin

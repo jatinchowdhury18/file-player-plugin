@@ -9,5 +9,6 @@ plugin development workflow. The current workflow is as follows:
 
 TODOs:
 - What about AUv3/iOS?
+- Some kind of parameter registry, so we're not using magic numbers everywhere!
 
 More to come!

@@ -3,6 +3,7 @@ target_sources(FilePlayerPlugin PRIVATE
 
     gui/plugin_editor.cpp
     gui/file_player_editor.cpp
+    gui/param_slider.cpp
 )
 
 if(APPLE)

@@ -26,6 +26,8 @@ struct Editor
     std::unique_ptr<Editor_Wrapper_Component> editor_wrapper;
     std::function<std::unique_ptr<juce::Component>()> create_editor = nullptr;
     std::unique_ptr<juce::ComponentBoundsConstrainer> constrainer {};
+
+    juce::Component* editor_comp = nullptr;
 };
 
 struct Editor_Provider

@@ -5,9 +5,11 @@ plugin_process :: (plugin: *clap_plugin_t, process: *clap_process_t) -> clap_pro
         player_state.buffer_swap_proc (plugin, player_state);
 
         // @TODO: right now we're not splitting blocks on param automation or modulation events
-        process_input_events(player_state, process.in_events);
+        process_input_events(plugin, player_state, process.in_events);
 
         play_audio (player_state, process.audio_outputs[0].channel_count, process.frames_count, process.audio_outputs[0].data32);
+
+        player_state.pull_param_changes_proc(plugin, process.out_events);
 
         return.CLAP_PROCESS_CONTINUE;
     }
@@ -29,9 +31,9 @@ swap_buffers :: (state: *Player_State,
     num_channels = cast(u32) new_num_channels;
     num_samples = cast(u32) new_num_samples;
     for ch : 0..channel_ptrs.count-1 {
-            if ch >= new_num_channels { channel_ptrs[ch] = null; }
-            else { channel_ptrs[ch] = new_channel_ptrs[ch]; }
-        }
+        if ch >= new_num_channels { channel_ptrs[ch] = null; }
+        else { channel_ptrs[ch] = new_channel_ptrs[ch]; }
+    }
 
     state.sample_ptr = 0;
 
@@ -46,7 +48,7 @@ play_audio :: (using state: *Player_State, num_channels: u32, num_samples: u32, 
         return;
 
     // @TODO: faster way to get the params!
-    gain_param := Hash_Table.table_find_pointer(*params.param_table, params.gain_param_info.id);
+    gain_param := params.gain_param;
 
     samples_to_copy := min(num_samples, playing_buffer.num_samples - sample_ptr);
     if (samples_to_copy > 0) {
@@ -62,7 +64,7 @@ play_audio :: (using state: *Player_State, num_channels: u32, num_samples: u32, 
     }
 }
 
-process_input_events :: (using state: *Player_State, events: *clap_input_events_t) {
+process_input_events :: (plugin: *clap_plugin_t, using state: *Player_State, events: *clap_input_events_t) {
     get_param :: (cookie: *void, param_id: clap_id, param_table: *Hash_Table.Table) -> *Params.Param {
         return ifx cookie != null {
             cast(*Params.Param) cookie;
@@ -84,6 +86,8 @@ process_input_events :: (using state: *Player_State, events: *clap_input_events_
             if param == null { continue; } // Host misbehaving!
 
             param.value = param_event.value;
+
+            push_param_change_proc(plugin, param_event.param_id, param_event.value);
         } else if event.type == CLAP_EVENT_PARAM_MOD {
             param_event := cast(*clap_event_param_mod_t) event;
 	        

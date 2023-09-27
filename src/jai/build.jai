@@ -86,7 +86,7 @@ build :: (building_arm64 := false, lib_postfix := "") {
         build(true, "_arm64");
 
         // For some reason we need to wait a second for the ARM build to finish?
-        sleep_milliseconds(100);
+        sleep_milliseconds(500);
 
         lipo_command := string.["lipo", "-create", "-output", "file_player_jai_lib.a", x64_lib, arm_lib];
         Process.run_command(..lipo_command);

@@ -34,6 +34,8 @@ Params :: struct {
         modulation: float64 = 0.0;
     };
     param_table: Hash_Table.Table(clap_id, Param);
+
+    gain_param: *Param;
 };
 
 #program_export
@@ -65,6 +67,9 @@ param_get_info :: (plugin: *clap_plugin_t, param_index: u32, param_info: *clap_p
                                               Params.Param.{ value = param_info.default_value, modulation = 0.0 });
         }
         param_info.cookie = param_ptr;
+
+        // @TODO: obviously find a better way to do this!
+        if param_info.id == params.gain_param_info.id { params.gain_param = param_ptr; }
         
         return true;
     }

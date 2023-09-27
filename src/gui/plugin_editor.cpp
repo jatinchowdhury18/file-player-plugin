@@ -178,6 +178,7 @@ bool Editor_Provider::gui_create (const clap_plugin* plugin, const char*, bool) 
     auto& editor = from_plugin (plugin);
     editor.editor_wrapper = std::make_unique<editor::Editor_Wrapper_Component> (static_cast<plugin::File_Player_Plugin*> (plugin->plugin_data)->get_host(), editor);
     editor.editor_wrapper->createEditor (editor.create_editor());
+    editor.editor_comp = editor.editor_wrapper->editor_component.get();
     return true;
 }
 
@@ -186,6 +187,7 @@ void Editor_Provider::gui_destroy (const clap_plugin* plugin) noexcept
     auto& editor = from_plugin (plugin);
     editor.editor_wrapper.reset (nullptr);
     editor.gui_parent_attached = false;
+    editor.editor_comp = nullptr;
 }
 
 bool Editor_Provider::set_scale (const clap_plugin* plugin, double scale) noexcept
