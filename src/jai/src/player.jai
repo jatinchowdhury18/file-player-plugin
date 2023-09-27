@@ -11,6 +11,7 @@ Audio_Buffer :: struct {
 }
 
 Player_State :: struct {
+    main_context: *Context = null;
     audio_context: *Context = null;
 
     buffer_swap_proc: (plugin: clap_plugin_t, state: *Player_State) -> void #no_context = null;

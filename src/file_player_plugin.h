@@ -47,6 +47,7 @@ struct File_Player_Plugin : public Plugin
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
     moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;
 
-    JaiContextWrapper jai;
+    JaiContextWrapper audio_context;
+    JaiContextWrapper main_context;
 };
 } // namespace file_player::plugin

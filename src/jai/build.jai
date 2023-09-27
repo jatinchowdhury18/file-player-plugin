@@ -40,6 +40,7 @@ build :: (building_arm64 := false, lib_postfix := "") {
         print("Generating C++ header...\n");
         cpp_header_info : Header_Info;
         array_add(*cpp_header_info.types_to_skip,
+            // "Params",
             "clap_version_t",
             "clap_plugin_descriptor_t",
             "clap_event_header_t",
