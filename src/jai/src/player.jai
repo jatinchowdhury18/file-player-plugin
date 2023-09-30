@@ -26,6 +26,13 @@ Player_State :: struct {
 }
 
 #program_export
+init_player_state :: (ctx: *Context, state: *Player_State) -> void #c_call {
+    push_context ctx {
+        Initialize(state);
+    }
+}
+
+#program_export
 from_plugin :: (plugin: *clap_plugin_t) -> *Player_State #c_call {
     #if OS == .WINDOWS {
         return cast (*Player_State) (plugin.plugin_data + 456);

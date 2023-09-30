@@ -99,6 +99,7 @@ File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     _plugin.get_extension = &get_extension;
     _plugin.process = reinterpret_cast<clap_process_status (*) (const clap_plugin*, const clap_process_t*)> (&plugin_process);
 
+    init_player_state (main_context, &player_state);
     player_state.main_context = main_context;
     player_state.audio_context = audio_context;
     player_state.buffer_swap_proc = reinterpret_cast<void*> (&buffer_swap_audio_thread);

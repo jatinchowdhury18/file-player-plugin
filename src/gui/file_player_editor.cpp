@@ -3,12 +3,17 @@
 
 namespace file_player::editor
 {
+jai::Params& get_params (plugin::File_Player_Plugin& p)
+{
+    return p.player_state.params;
+}
+
 File_Player_Editor::File_Player_Editor (plugin::File_Player_Plugin& plug)
     : plugin { plug },
-      gain_slider { 0, plugin.clapPlugin(), [&plug] (plugin::Param_Action&& action)
-                    { plug.params_gui_to_audio_queue.enqueue (action); } },
-      repitch_slider { 1, plugin.clapPlugin(), [&plug] (plugin::Param_Action&& action)
-                       { plug.params_gui_to_audio_queue.enqueue (action); } }
+      action_forwarder { [&plug] (plugin::Param_Action&& action)
+                         { plug.params_gui_to_audio_queue.enqueue (action); } },
+      gain_slider { get_params (plug).gain_param.id, plugin.clapPlugin(), action_forwarder },
+      repitch_slider { get_params (plug).pitch_param.id, plugin.clapPlugin(), action_forwarder }
 {
     audio_format_manager.registerBasicFormats();
 

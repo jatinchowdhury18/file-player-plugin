@@ -48,7 +48,7 @@ play_audio :: (using state: *Player_State, num_channels: u32, num_samples: u32, 
         return;
 
     // @TODO: faster way to get the params!
-    gain_param := params.gain_param;
+    gain_param_value := params.gain_param.value;
 
     samples_to_copy := min(num_samples, playing_buffer.num_samples - sample_ptr);
     if (samples_to_copy > 0) {
@@ -58,7 +58,7 @@ play_audio :: (using state: *Player_State, num_channels: u32, num_samples: u32, 
             memcpy(buffer_data[ch], channel_data + sample_ptr, samples_to_copy * size_of(float));
 
             // apply gain
-            for n : 0..num_samples-1 { buffer_data[ch][n] *= cast(float32) gain_param.value; }
+            for n : 0..num_samples-1 { buffer_data[ch][n] *= cast(float32) gain_param_value; }
         }
         sample_ptr += samples_to_copy;
     }
@@ -69,7 +69,7 @@ process_input_events :: (plugin: *clap_plugin_t, using state: *Player_State, eve
         return ifx cookie != null {
             cast(*Params.Param) cookie;
         } else {
-            Hash_Table.table_find_pointer(param_table, param_id);
+            Hash_Table.table_find_pointer(param_table, param_id).*;
         }
     }
 

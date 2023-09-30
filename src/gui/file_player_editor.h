@@ -23,6 +23,7 @@ struct File_Player_Editor : juce::Component
     void handle_param_action (const plugin::Param_Action&);
 
     plugin::File_Player_Plugin& plugin;
+    const std::function<void(plugin::Param_Action&&)> action_forwarder;
 
     juce::TextButton select_file_button { "Select File" };
     std::shared_ptr<juce::FileChooser> file_chooser;
