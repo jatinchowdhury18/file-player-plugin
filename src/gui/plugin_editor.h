@@ -23,7 +23,7 @@ struct Editor
     bool is_resizeable = false;
     bool gui_parent_attached = false;
     float gui_scale_factor = 1.0f;
-    std::unique_ptr<Editor_Wrapper_Component> editor_wrapper;
+    std::unique_ptr<Editor_Wrapper_Component> editor_wrapper {};
     std::function<std::unique_ptr<juce::Component>()> create_editor = nullptr;
     std::unique_ptr<juce::ComponentBoundsConstrainer> constrainer {};
 

@@ -85,7 +85,6 @@ void param_changes_gui_to_audio (clap_plugin_t* plugin, clap_output_events* out_
                 .value = action.new_value,
             };
             out_events->try_push (out_events, reinterpret_cast<const clap_event_header*> (&event));
-
         }
     }
 }
@@ -108,7 +107,9 @@ File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     jassert (from_plugin (&_plugin) == &player_state);
 
     editor.create_editor = [this]
-    { return std::make_unique<editor::File_Player_Editor> (*this); };
+    {
+        return std::make_unique<editor::File_Player_Editor> (*this);
+    };
     editor.is_resizeable = true;
 
     editor.constrainer = std::make_unique<juce::ComponentBoundsConstrainer>();
