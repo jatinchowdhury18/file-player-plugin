@@ -21,8 +21,8 @@ Params_Metadata :: struct {
         flags = .CLAP_PARAM_IS_AUTOMATABLE,
         cookie = null,
         name = #run make_name("Pitch"),
-        min_value = 0.5,
-        max_value = 2.0,
+        min_value = 0.2,
+        max_value = 5.0,
         default_value = 1.0,
     };
 };

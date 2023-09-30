@@ -1,3 +1,5 @@
+#include <bit>
+
 #include <clap/helpers/host-proxy.hh>
 #include <clap/helpers/host-proxy.hxx>
 
@@ -17,15 +19,16 @@ void buffer_swap_audio_thread (clap_plugin_t* plugin, jai::Player_State* player_
 
     if (file_player_plugin->buffer_life_queue.peek() != nullptr)
     {
-        std::unique_ptr<juce::AudioBuffer<float>> buffer_swap_ptr;
+        BufferPtr buffer_swap_ptr;
         if (file_player_plugin->buffer_life_queue.try_dequeue (buffer_swap_ptr))
         {
-            const auto num_channels = buffer_swap_ptr->getNumChannels();
-            const auto num_samples = buffer_swap_ptr->getNumSamples();
-            const auto buffer_data = buffer_swap_ptr->getArrayOfWritePointers();
-            buffer_swap_ptr.reset (reinterpret_cast<juce::AudioBuffer<float>*> (
+            const auto num_channels = buffer_swap_ptr.buffer->getNumChannels();
+            const auto num_samples = buffer_swap_ptr.buffer->getNumSamples();
+            const auto buffer_data = buffer_swap_ptr.buffer->getArrayOfWritePointers();
+            buffer_swap_ptr.buffer.reset (reinterpret_cast<juce::AudioBuffer<float>*> (
                 swap_buffers (player_state,
-                              buffer_swap_ptr.release(),
+                              buffer_swap_ptr.buffer.release(),
+                              buffer_swap_ptr.sample_rate,
                               num_channels,
                               num_samples,
                               const_cast<float**> (buffer_data))));
@@ -96,6 +99,7 @@ File_Player_Plugin::File_Player_Plugin (const clap_host* host)
     //    jassert (offsetof (File_Player_Plugin, player_state) == 456);
 
     _plugin.get_extension = &get_extension;
+    _plugin.activate = reinterpret_cast<bool (*) (const clap_plugin*, double, uint32_t, uint32_t)> (&plugin_activate);
     _plugin.process = reinterpret_cast<clap_process_status (*) (const clap_plugin*, const clap_process_t*)> (&plugin_process);
 
     init_player_state (main_context, &player_state);
@@ -147,9 +151,9 @@ const void* File_Player_Plugin::get_extension (const clap_plugin* plugin, const 
 
 void File_Player_Plugin::onMainThread() noexcept
 {
-    std::unique_ptr<juce::AudioBuffer<float>> buffer_killer {};
+    BufferPtr buffer_killer {};
     while (buffer_death_queue.try_dequeue (buffer_killer))
-        buffer_killer.reset (nullptr);
+        buffer_killer.buffer.reset (nullptr);
 
     Param_Action param_action;
     while (params_audio_to_gui_queue.try_dequeue (param_action))

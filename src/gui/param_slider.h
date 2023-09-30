@@ -15,13 +15,21 @@ struct Param_Action;
 
 namespace file_player::editor
 {
+enum class Param_Slider_Skew
+{
+    Linear,
+    Log,
+//    Anti_Log, don't have any need for this yet
+};
+
 struct Param_Slider : juce::Slider,
                       juce::Slider::Listener
 {
     // finding the params by param_index is bad... let's find another way eventually
     explicit Param_Slider (size_t param_index,
                            const clap_plugin_t* plugin,
-                           std::function<void(plugin::Param_Action&&)> action_sender);
+                           std::function<void(plugin::Param_Action&&)> action_sender,
+                           Param_Slider_Skew skew = Param_Slider_Skew::Linear);
     ~Param_Slider() override;
 
     void update_value (double new_value, bool send_to_host = true);

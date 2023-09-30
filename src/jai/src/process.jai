@@ -1,4 +1,11 @@
 #program_export
+plugin_activate :: (plugin: *clap_plugin_t, sample_rate: float64, min_frames_count: u32, max_frames_count: u32) -> bool #c_call {
+    player_state := from_plugin(plugin);
+    player_state.host_sample_rate = sample_rate;
+    return true;
+}
+
+#program_export
 plugin_process :: (plugin: *clap_plugin_t, process: *clap_process_t) -> clap_process_status #c_call {
     player_state := from_plugin(plugin);
     push_context player_state.audio_context {
@@ -17,10 +24,11 @@ plugin_process :: (plugin: *clap_plugin_t, process: *clap_process_t) -> clap_pro
 
 #program_export
 swap_buffers :: (state: *Player_State,
-                  swap_juce_buffer: *void,
-                  new_num_channels: s32,
-                  new_num_samples: s32,
-                  new_channel_ptrs: **float) -> *void #c_call {
+                 swap_juce_buffer: *void,
+                 new_buffer_sample_rate: float64,
+                 new_num_channels: s32,
+                 new_num_samples: s32,
+                 new_channel_ptrs: **float) -> *void #c_call {
     using state.playing_buffer;
 
     // swap buffers
@@ -35,7 +43,9 @@ swap_buffers :: (state: *Player_State,
         else { channel_ptrs[ch] = new_channel_ptrs[ch]; }
     }
 
-    state.sample_ptr = 0;
+    state.buffer_sample_rate = new_buffer_sample_rate;
+
+    state.sample_ptr = 0.0;
 
     return dead_buffer;
 }
@@ -49,18 +59,27 @@ play_audio :: (using state: *Player_State, num_channels: u32, num_samples: u32, 
 
     // @TODO: faster way to get the params!
     gain_param_value := params.gain_param.value;
+    samples_increment := (buffer_sample_rate / host_sample_rate) * params.pitch_param.value;
 
-    samples_to_copy := min(num_samples, playing_buffer.num_samples - sample_ptr);
-    if (samples_to_copy > 0) {
+    if (num_samples > 0 && sample_ptr < cast(float32) playing_buffer.num_samples - 5) {
+        sample_ptr_channel: float64;
         for ch : 0..num_channels-1 {
-            // copy data
+            // read data
+            sample_ptr_channel = sample_ptr;
             channel_data := playing_buffer.channel_ptrs[ch % playing_buffer.num_channels];
-            memcpy(buffer_data[ch], channel_data + sample_ptr, samples_to_copy * size_of(float));
+            for n : 0..num_samples-1 {
+                if sample_ptr_channel >= cast(float32) (playing_buffer.num_samples - 5) { break; }
+
+                buffer_data[ch][n] = interpolate_quintic(channel_data, sample_ptr_channel);
+                sample_ptr_channel += samples_increment;
+            }
+
+            // memcpy(buffer_data[ch], channel_data + sample_ptr, samples_to_copy * size_of(float));
 
             // apply gain
             for n : 0..num_samples-1 { buffer_data[ch][n] *= cast(float32) gain_param_value; }
         }
-        sample_ptr += samples_to_copy;
+        sample_ptr = sample_ptr_channel;
     }
 }
 
@@ -98,3 +117,5 @@ process_input_events :: (plugin: *clap_plugin_t, using state: *Player_State, eve
         }
     }
 }
+
+#load "interpolation.jai";

@@ -13,7 +13,7 @@ File_Player_Editor::File_Player_Editor (plugin::File_Player_Plugin& plug)
       action_forwarder { [&plug] (plugin::Param_Action&& action)
                          { plug.params_gui_to_audio_queue.enqueue (action); } },
       gain_slider { get_params (plug).gain_param.id, plugin.clapPlugin(), action_forwarder },
-      repitch_slider { get_params (plug).pitch_param.id, plugin.clapPlugin(), action_forwarder }
+      repitch_slider { get_params (plug).pitch_param.id, plugin.clapPlugin(), action_forwarder, Param_Slider_Skew::Log }
 {
     audio_format_manager.registerBasicFormats();
 
@@ -48,7 +48,7 @@ File_Player_Editor::File_Player_Editor (plugin::File_Player_Plugin& plug)
                                            return;
                                        }
 
-                                       plugin.buffer_life_queue.enqueue (std::move (buffer));
+                                       plugin.buffer_life_queue.enqueue ({ std::move (buffer), reader->sampleRate });
                                    });
     };
     addAndMakeVisible (select_file_button);

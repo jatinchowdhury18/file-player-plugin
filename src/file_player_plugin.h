@@ -28,6 +28,12 @@ struct Param_Action
     bool is_end_gesture = false;
 };
 
+struct BufferPtr
+{
+    std::unique_ptr<juce::AudioBuffer<float>> buffer;
+    double sample_rate = 0.0;
+};
+
 struct File_Player_Plugin : public Plugin
 {
     static constexpr char const* features[] = { CLAP_PLUGIN_FEATURE_AUDIO_EFFECT, CLAP_PLUGIN_FEATURE_DELAY, nullptr };
@@ -53,8 +59,8 @@ struct File_Player_Plugin : public Plugin
 
     jai::Player_State player_state {};
     editor::Editor editor;
-    moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_life_queue;
-    moodycamel::ReaderWriterQueue<std::unique_ptr<juce::AudioBuffer<float>>, 4> buffer_death_queue;
+    moodycamel::ReaderWriterQueue<BufferPtr, 4> buffer_life_queue;
+    moodycamel::ReaderWriterQueue<BufferPtr, 4> buffer_death_queue;
     moodycamel::ReaderWriterQueue<Param_Action, 32> params_gui_to_audio_queue;
     moodycamel::ReaderWriterQueue<Param_Action, 32> params_audio_to_gui_queue;
 

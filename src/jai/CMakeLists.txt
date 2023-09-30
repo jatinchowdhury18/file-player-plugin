@@ -11,6 +11,7 @@ set(JAI_SOURCES
     "src/player.jai"
     "src/plugin.jai"
     "src/process.jai"
+    "src/interpolation.jai"
 )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${JAI_LIBRARY_FILE}
         COMMAND ${JAI_COMPILER} build.jai

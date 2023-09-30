@@ -14,13 +14,16 @@ Player_State :: struct {
     main_context: *Context = null;
     audio_context: *Context = null;
 
+    host_sample_rate: float64 = 0.0;
+
     buffer_swap_proc: (plugin: *clap_plugin_t, state: *Player_State) -> void #no_context = null;
     playing_buffer: Audio_Buffer = .{};
+    buffer_sample_rate: float64 = 0.0;
 
     push_param_change_proc: (plugin: *clap_plugin_t, param_id: clap_id, new_value: float64) -> void #no_context = null;
     pull_param_changes_proc: (plugin: *clap_plugin_t, queue: *clap_output_events_t) -> void #no_context = null;
 
-    sample_ptr: u32 = 0;
+    sample_ptr: float64 = 0.0;
 
     params: Params = .{};
 }
