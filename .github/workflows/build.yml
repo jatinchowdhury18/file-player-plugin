@@ -27,7 +27,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         ref: 0.1.074b
-        repository: Chowdhury-DSP/jai
+        repository: Chowdhury-DSP/jai-minimal
         path: jai
         token: ${{ secrets.OUR_GITHUB_PAT }}
 
