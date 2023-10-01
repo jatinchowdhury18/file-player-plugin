@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - main
+
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Test plugin on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # show all errors for each platform (vs. cancel jobs on error)
+      matrix:
+        os: [windows-2022, macos-latest]
+    
+    steps:
+    - name: Get latest CMake
+      uses: lukka/get-cmake@latest
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Checkout Jai
+      uses: actions/checkout@v2
+      with:
+        ref: 0.1.074b
+        repository: Chowdhury-DSP/jai
+        path: jai
+        token: ${{ secrets.OUR_GITHUB_PAT }}
+
+    - name: Configure
+      shell: bash
+      run: cmake -Bbuild
+
+    - name: Build
+      shell: bash
+      run: cmake --build build --config Release --parallel 4
+
+    - name: Set up clap-info
+      shell: bash
+      run: |
+        git clone --recurse-submodules https://github.com/surge-synthesizer/clap-info
+        cd clap-info
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release --parallel 4
+
+    - name: Run clap-info (Mac/Linux)
+      if: runner.os == 'Linux' || runner.os == 'MacOS'
+      shell: bash
+      run: |
+        clap-info/build/clap-info --version
+        clap-info/build/clap-info "build/File Player Plugin.clap"
+
+    - name: Run clap-info (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        clap-info/build/Release/clap-info --version
+        clap-info/build/Release/clap-info "build/Debug/File Player Plugin.clap"
+
+#    - name: Setup debug session
+#      if: always()
+#      uses: mxschmitt/action-tmate@v3
