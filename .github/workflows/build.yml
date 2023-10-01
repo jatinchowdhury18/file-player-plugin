@@ -44,8 +44,8 @@ jobs:
       run: |
         git clone --recurse-submodules https://github.com/surge-synthesizer/clap-info
         cd clap-info
-        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
-        cmake --build build --config Release --parallel 4
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug
+        cmake --build build --config Debug --parallel 4
 
     - name: Run clap-info (Mac/Linux)
       if: runner.os == 'Linux' || runner.os == 'MacOS'
@@ -59,7 +59,7 @@ jobs:
       shell: bash
       run: |
         clap-info/build/Release/clap-info --version
-        clap-info/build/Release/clap-info "build/Release/File Player Plugin.clap"
+        clap-info/build/Release/clap-info "build/Debug/File Player Plugin.clap"
 
 #    - name: Setup debug session
 #      if: always()
