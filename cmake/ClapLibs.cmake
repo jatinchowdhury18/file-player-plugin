@@ -16,7 +16,7 @@ set(CLAP_WRAPPER_BUILD_AUV2 TRUE CACHE BOOL "It's only logical")
 CPMAddPackage(
     NAME clap-wrapper
     GITHUB_REPOSITORY jatinchowdhury18/clap-wrapper
-    GIT_TAG f755cd14b7cbe0d675a4970f485c9a70284db5c0
+    GIT_TAG 5b038a1b2016ca1b74db800c0464967d9eea0bfd
 )
 
 function(target_library_make_clap)
